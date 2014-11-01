@@ -31,22 +31,24 @@ void Sudoku::cal() {
     while (true) {
         // 将一维下标转换成二维下标
         int row = i / GRID_TOTAL_ROW_COUNT_SIZE, col = i % GRID_TOTAL_ROW_COUNT_SIZE;
-        if (m_input.grid()[row][col] != 0) { // 当前位置的值是初始给定的，跳过本次
-            ++i;
-            continue;
-        }
         bool valid = true;
-        // 计算当前位置的所有可选值
-        if ((optionalVal[i] = updateOptionalVal(row, col)).size() == 0) {
-            valid = false;
-        } else {
-            // 设置当前位置的值
-            m_input.grid()[row][col] = optionalVal[i].front();
-            optionalVal[i].pop();
-            // i位置的值修改过，更新
-            iset.push(i);
+        if (i < GRID_TOTAL_ROW_COUNT_SIZE * GRID_TOTAL_ROW_COUNT_SIZE) {
+            if (m_input.grid()[row][col] != 0) { // 当前位置的值是初始给定的，跳过本次
+                ++i;
+                continue;
+            }
+            // 计算当前位置的所有可选值
+            if ((optionalVal[i] = updateOptionalVal(row, col)).size() == 0) {
+                valid = false;
+            } else {
+                // 设置当前位置的值
+                m_input.grid()[row][col] = optionalVal[i].front();
+                optionalVal[i].pop();
+                // i位置的值修改过，更新
+                iset.push(i);
+            }
         }
-        if (valid && i == GRID_TOTAL_ROW_COUNT_SIZE * GRID_TOTAL_ROW_COUNT_SIZE - 1) {
+        if (valid && i >= GRID_TOTAL_ROW_COUNT_SIZE * GRID_TOTAL_ROW_COUNT_SIZE - 1) {
             // 找到一组解
             m_result.push_back(m_input);
         }
@@ -55,7 +57,8 @@ void Sudoku::cal() {
             continue;
         }
         // 回溯
-        while (i >= 0 && optionalVal[i].size() == 0) {
+        while (i >= GRID_TOTAL_ROW_COUNT_SIZE * GRID_TOTAL_ROW_COUNT_SIZE ||
+               (i >= 0 && optionalVal[i].size() == 0)) {
             if (iset.size() != 0 && iset.top() == i) { // 如果i位置的值被修改过
                 m_input.grid()[row][col] = 0;
                 iset.pop();
